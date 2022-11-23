@@ -16,9 +16,19 @@ import InputLabel from "@mui/material/InputLabel"
 import Button from "@mui/material/Button"
 
 // react router import
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+
+// firebase
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth"
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"
+import { db } from "../firebase.config"
 
 const SignUp = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
@@ -30,6 +40,32 @@ const SignUp = () => {
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value })
   }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const auth = getAuth()
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+      const user = userCredential.user
+      updateProfile(auth.currentUser, {
+        displayName: name,
+      })
+
+      const formDataCopy = { ...formData }
+      delete formData.password
+      formDataCopy.timestamp = serverTimestamp()
+
+      await setDoc(doc(db, "users", user.uid), formDataCopy)
+
+      navigate("/")
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <Container sx={{ width: 0.9, my: 2, mx: 0.1 }}>
       <h1>Sign Up</h1>
@@ -40,6 +76,7 @@ const SignUp = () => {
         }}
         noValidate
         autoComplete="off"
+        onSubmit={handleSubmit}
       >
         <FormControl sx={{ m: 1, width: "25ch" }} variant="standard">
           <InputLabel htmlFor="name">Name</InputLabel>
@@ -70,25 +107,27 @@ const SignUp = () => {
             }
           />
         </FormControl>
-      </Box>
-      <Button
-        type="button"
-        sx={[
-          {
-            backgroundColor: blue[500],
-            color: grey[100],
-            "&:hover": {
-              backgroundColor: blue[700],
+        <br />
+        <Button
+          type="submit"
+          sx={[
+            {
+              backgroundColor: blue[500],
               color: grey[100],
+              "&:hover": {
+                backgroundColor: blue[700],
+                color: grey[100],
+              },
+              mx: 1,
+              mt: 2,
+              mb: 5,
             },
-            mx: 1,
-            mt: 2,
-            mb: 5,
-          },
-        ]}
-      >
-        Sign Up
-      </Button>
+          ]}
+          onClick={() => handleSubmit()}
+        >
+          Sign Up
+        </Button>
+      </Box>
       <br />
 
       <Link to="/sign-in">Sign In Instead</Link>
