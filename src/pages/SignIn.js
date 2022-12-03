@@ -16,7 +16,10 @@ import InputLabel from "@mui/material/InputLabel"
 import Button from "@mui/material/Button"
 
 // react router import
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+
+// firebase
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -25,11 +28,32 @@ const SignIn = () => {
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value })
   }
+
+  const navigate = useNavigate()
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    try {
+      const auth = getAuth()
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      )
+      const user = userCredential.user
+      console.log(user.uid)
+      setTimeout(() => {
+        navigate("/profile")
+      }, 1000)
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <Container sx={{ width: 0.9, my: 2, mx: 0.1 }}>
       <h1>Sign In</h1>
       <Box
         component="form"
+        onSubmit={handleSubmit}
         sx={{
           "& > :not(style)": { m: 1, width: "40ch" },
         }}
@@ -60,26 +84,27 @@ const SignIn = () => {
             }
           />
         </FormControl>
+        <Button
+          type="submit"
+          sx={[
+            {
+              backgroundColor: blue[500],
+              color: grey[100],
+              "&:hover": {
+                backgroundColor: blue[700],
+                color: grey[100],
+              },
+              mx: 1,
+              mt: 2,
+              mb: 5,
+            },
+          ]}
+          onClick={(e) => handleSubmit(e)}
+        >
+          Sign In
+        </Button>
       </Box>
       <br />
-      <Button
-        type="button"
-        sx={[
-          {
-            backgroundColor: blue[500],
-            color: grey[100],
-            "&:hover": {
-              backgroundColor: blue[700],
-              color: grey[100],
-            },
-            mx: 1,
-            mt: 2,
-            mb: 5,
-          },
-        ]}
-      >
-        Sign In
-      </Button>
       <br />
 
       <Link to="/sign-up">Not A User? Signup Instead</Link>
