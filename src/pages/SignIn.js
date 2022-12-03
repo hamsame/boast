@@ -84,6 +84,7 @@ const SignIn = () => {
             }
           />
         </FormControl>
+        <br />
         <Button
           type="submit"
           sx={[
@@ -105,8 +106,10 @@ const SignIn = () => {
         </Button>
       </Box>
       <br />
+      <Link to="/forgot-password">Forgot Password?</Link>
       <br />
-
+      <br />
+      <br />
       <Link to="/sign-up">Not A User? Signup Instead</Link>
     </Container>
   )
