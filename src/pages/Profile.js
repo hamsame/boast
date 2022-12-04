@@ -96,7 +96,7 @@ const Profile = () => {
               mb: 5,
             },
           ]}
-          onClick={() => onSignout()}
+          onClick={onSignout}
         >
           Logout
         </Button>
